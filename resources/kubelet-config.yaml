@@ -1,0 +1,9 @@
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+resolvConf: /etc/kubernetes/resolv.conf
+authorization:
+  mode: AlwaysAllow
+authentication:
+  anonymous:
+    enabled: true
+

@@ -1,0 +1,45 @@
+#kube-apiserver
+
+user=kube-apiserver
+group=kube-apiserver
+
+INTERNAL_IP="{INSTANCE_IP}"
+
+command_args="
+  --allow-privileged=true 
+  --apiserver-count=3 
+  --audit-log-maxage=30 
+  --audit-log-maxbackup=3 
+  --audit-log-maxsize=100
+  --authorization-mode=Node,RBAC
+  --bind-address=0.0.0.0 
+  --client-ca-file=/etc/kubernetes/pki/ca.crt
+  --enable-admission-plugins=LimitRanger,NamespaceExists,NamespaceLifecycle,ResourceQuota,ServiceAccount,DefaultStorageClass,MutatingAdmissionWebhook
+  --etcd-cafile=/etc/kubernetes/pki/ca.crt 
+  --etcd-certfile=/etc/kubernetes/pki/kube-apiserver.crt 
+  --etcd-keyfile=/etc/kubernetes/pki/kube-apiserver.key
+  --etcd-servers=https://{HOSTNAME}:2379 
+  --event-ttl=1h 
+  --encryption-provider-config=/etc/kubernetes/manifests/encryption-config.yaml 
+  --enable-aggregator-routing=false
+  --kubelet-certificate-authority=/etc/kubernetes/pki/ca.crt
+  #--kubelet-client-certificate=/etc/kubernetes/pki/kubelet.crt
+  #--kubelet-client-key=/etc/kubernetes/pki/kubelet.key
+  --service-cluster-ip-range={SERVICE_CIDR}
+  --service-node-port-range=30000-56000
+  --api-audiences=api
+  --service-account-issuer=https://kubernetes.default.svc.cluster.local
+  --service-account-signing-key-file=/etc/kubernetes/pki/kube-apiserver.key
+  --service-account-key-file=/etc/kubernetes/pki/kube-apiserver.key
+  --tls-cert-file=/etc/kubernetes/pki/kube-apiserver.crt
+  --tls-private-key-file=/etc/kubernetes/pki/kube-apiserver.key
+  #--token-auth-file=/etc/kubernetes/token
+  #--enable-bootstrap-token-auth
+  --requestheader-client-ca-file=/etc/kubernetes/pki/ca.crt
+  --requestheader-group-headers=X-Remote-Group
+  --requestheader-username-headers=X-Remote-User
+  --requestheader-allowed-names=aggregator
+  --v=1
+
+"
+

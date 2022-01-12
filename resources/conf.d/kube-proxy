@@ -1,0 +1,14 @@
+#
+
+#user=kube
+#group=kube
+
+command_args="
+  --kubeconfig /etc/kubernetes/kube-proxy.kubeconfig
+  --cluster-cidr=172.16.1.0/24
+  --bind-address 0.0.0.0
+  --master=https://{API_ENDPOINT}:6443
+  --proxy-mode=ipvs
+  --ipvs-scheduler=rr
+"
+

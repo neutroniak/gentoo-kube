@@ -1,0 +1,11 @@
+#
+
+user=kube
+group=kube
+
+command_args="
+	--leader-elect=true
+	--master=https://{API_ENDPOINT}:6443
+	--kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig
+"
+

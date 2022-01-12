@@ -1,0 +1,27 @@
+###
+# kubernetes system config
+#
+# The following values are used to configure the kube-controller-manager
+#
+# Add your own!
+
+user=kube-controller-manager
+group=kube-controller-manager
+
+command_args="
+	--allocate-node-cidrs=true
+	--service-cluster-ip-range={SERVICE_CIDR}
+	--cluster-cidr={CLUSTER_CIDR}
+	--cluster-name={CLUSTER_NAME}
+	--leader-elect=true
+	--master=https://{API_ENDPOINT}:6443
+	--root-ca-file=/etc/kubernetes/pki/ca.crt
+	--service-account-private-key-file=/etc/kubernetes/pki/kube-apiserver.key
+	--v=2
+	--kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig
+	--horizontal-pod-autoscaler-cpu-initialization-period 30s
+	--horizontal-pod-autoscaler-downscale-stabilization 30s 
+	--horizontal-pod-autoscaler-initial-readiness-delay 30s
+	--horizontal-pod-autoscaler-sync-period 10s
+"
+
