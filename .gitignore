@@ -1,0 +1,8 @@
+*.swp
+*.swo
+/data
+/scripts
+/hosts
+/config.yaml
+.vimsess
+
