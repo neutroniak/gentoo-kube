@@ -7,22 +7,22 @@ ETCD_DATA_DIR=/var/lib/etcd
 ETCD_HOST="{INSTANCE_IP}"
 
 ETCD_OPTS="
-  --name ${ETCD_NAME} 
-  --cert-file=/etc/etcd/pki/etcd.crt 
+  --name ${ETCD_NAME}
+  --cert-file=/etc/etcd/pki/etcd.crt
   --key-file=/etc/etcd/pki/etcd.key
   --peer-cert-file=/etc/etcd/pki/etcd.crt
   --peer-key-file=/etc/etcd/pki/etcd.key
   --trusted-ca-file=/etc/etcd/pki/ca.crt
-  --peer-trusted-ca-file=/etc/etcd/pki/ca.crt 
-  --peer-client-cert-auth 
-  --client-cert-auth 
-  --initial-advertise-peer-urls https://${ETCD_HOST}:2380 
-  --listen-peer-urls https://${ETCD_HOST}:2380 
+  --peer-trusted-ca-file=/etc/etcd/pki/ca.crt
+  --peer-client-cert-auth
+  --client-cert-auth
+  --initial-advertise-peer-urls https://${ETCD_HOST}:2380
+  --listen-peer-urls https://${ETCD_HOST}:2380
   --listen-client-urls https://${ETCD_HOST}:2379
-  --advertise-client-urls https://${ETCD_HOST}:2379 
+  --advertise-client-urls https://${ETCD_HOST}:2379
   --initial-cluster-token {HOSTNAME}
-  --initial-cluster {HOSTNAME}=https://${ETCD_HOST}:2380 
-  --initial-cluster-state new 
+  --initial-cluster {HOSTNAME}=https://${ETCD_HOST}:2380
+  --initial-cluster-state new
   --data-dir=${ETCD_DATA_DIR}
 "
 

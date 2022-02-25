@@ -5,7 +5,7 @@
 
 command_args="
   --kubeconfig /etc/kubernetes/kube-proxy.kubeconfig
-  --cluster-cidr=172.16.1.0/24
+  --cluster-cidr={CLUSTER_CIDR}
   --bind-address 0.0.0.0
   --master=https://{API_ENDPOINT}:6443
   --proxy-mode=ipvs

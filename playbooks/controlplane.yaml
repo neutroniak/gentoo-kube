@@ -7,16 +7,6 @@
       include_vars:
         file: "../config.yaml"
         name: "kconf"
-    - name: "update"
-      community.general.portage:
-        package: '@world'
-        update: yes
-        deep: yes
-        newuse: yes
-        changed_use: yes
-    - name: "depclean"
-      community.general.portage:
-        depclean: yes
     - name: "kube api server"
       package:
         name: kube-apiserver
@@ -44,11 +34,11 @@
 
     - name: "check pki dir"
       stat:
-        path: "/etc/kubernetes/pki"
+        path: "/etc/kubernetes/pki/kube-apiserver.key"
       register: has_pki
 
     - name: "check pki dir"
-      include_tasks: certs.yaml
+      include_tasks: certs/controlplane.yaml
       when: not has_pki.stat.exists
 
     - name: "Copy conf.d files"
@@ -161,10 +151,15 @@
       stat:
         path: "/etc/kubernetes/manifests/encryption-config.yaml"
       register: has_encryption_config
+    - name: "Create manifests dire"
+      file:
+        path: "/etc/kubernetes/manifests"
+        state: directory
+      when: not has_encryption_config.stat.exists
     - name: "Copy encryption-config file"
       copy:
         src: "../resources/encryption-config.yaml"
-        dest: "/etc/kubernetes/manifests"
+        dest: "/etc/kubernetes/manifests/encryption-config.yaml"
       when: not has_encryption_config.stat.exists
     - name: "generate encryption key"
       shell: "head -c 32 /dev/urandom | base64"
@@ -174,6 +169,15 @@
         path: "/etc/kubernetes/manifests/encryption-config.yaml"
         regexp: "{ENCRYPTION_KEY}"
         replace: "{{enckey.stdout}}"
+
+    # machine-id
+    - name: "machine-id check"
+      stat:
+        path: "/etc/machine-id"
+      register: has_machine_id
+    - name: "create machine-id"
+      shell: "uuidgen > /etc/machine-id"
+      when: not has_machine_id.stat.exists
 
     # fix permissions
     - name: "fix permissions"
@@ -217,33 +221,28 @@
         - {"path":"/etc/kubernetes/pki/kube-scheduler.csr"}
         - {"path":"/etc/kubernetes/kube-scheduler.kubeconfig"}
 
-    - name: "var run"
-      file:
-        path: "/var/run/kubernetes"
-        owner: kube-apiserver
-        group: kube-apiserver
-        state: directory
+    - name:
+      fetch:
+        src: "/etc/kubernetes/admin.kubeconfig"
+        dest: "../data/admin.config"
+        flat: true
 
     # enable services
-    - name: "Enable kube-apiserver service"
-      service:
-        name: kube-apiserver
-        enabled: yes
-
-    - name: "Enable kube-controller-manager service"
-      service:
-        name: kube-controller-manager
-        enabled: yes
-
-    - name: "Enable kube-scheduler service"
-      service:
-        name: kube-scheduler
-        enabled: yes
-
     - name: "Enable etcd service"
       service:
         name: etcd
         enabled: yes
-
+    - name: "Enable kube-apiserver service"
+      service:
+        name: kube-apiserver
+        enabled: yes
+    - name: "Enable kube-controller-manager service"
+      service:
+        name: kube-controller-manager
+        enabled: yes
+    - name: "Enable kube-scheduler service"
+      service:
+        name: kube-scheduler
+        enabled: yes
 
 

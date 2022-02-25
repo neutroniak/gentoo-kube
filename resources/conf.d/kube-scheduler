@@ -1,7 +1,7 @@
 #
 
-user=kube
-group=kube
+user=kube-scheduler
+group=kube-scheduler
 
 command_args="
 	--leader-elect=true

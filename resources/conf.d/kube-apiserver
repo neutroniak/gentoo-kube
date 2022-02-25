@@ -23,8 +23,6 @@ command_args="
   --encryption-provider-config=/etc/kubernetes/manifests/encryption-config.yaml 
   --enable-aggregator-routing=false
   --kubelet-certificate-authority=/etc/kubernetes/pki/ca.crt
-  #--kubelet-client-certificate=/etc/kubernetes/pki/kubelet.crt
-  #--kubelet-client-key=/etc/kubernetes/pki/kubelet.key
   --service-cluster-ip-range={SERVICE_CIDR}
   --service-node-port-range=30000-56000
   --api-audiences=api
@@ -33,8 +31,6 @@ command_args="
   --service-account-key-file=/etc/kubernetes/pki/kube-apiserver.key
   --tls-cert-file=/etc/kubernetes/pki/kube-apiserver.crt
   --tls-private-key-file=/etc/kubernetes/pki/kube-apiserver.key
-  #--token-auth-file=/etc/kubernetes/token
-  #--enable-bootstrap-token-auth
   --requestheader-client-ca-file=/etc/kubernetes/pki/ca.crt
   --requestheader-group-headers=X-Remote-Group
   --requestheader-username-headers=X-Remote-User

@@ -1,0 +1,10 @@
+---
+  - name: "reset cluster"
+    hosts: local
+    connection: local
+    tasks:
+    - name: "test"
+      debug:
+        var: result.stdout
+      delegate_to: localhost
+

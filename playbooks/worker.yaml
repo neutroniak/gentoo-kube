@@ -1,0 +1,172 @@
+---
+  - name: "install and upgrade packages"
+    hosts: workers
+    become: yes
+    tasks:
+    - name: "include vars"
+      include_vars:
+        file: "../config.yaml"
+        name: "kconf"
+    - name: "Add accept keywords dir"
+      file:
+        path: "/etc/portage/package.accept_keywords"
+        state: directory
+    - name: "add cri-o accept keyword file"
+      copy:
+        src: "../resources/crio_accept"
+        dest: "/etc/portage/package.accept_keywords/crio"
+    - name: "kubelet"
+      package:
+        name: kubelet
+        state: installed
+    - name: "Install kube-proxy"
+      package:
+        name: kube-proxy
+        state: installed
+    - name: "Install cri-o"
+      package:
+        name: cri-o
+        state: installed
+    - name: "Install cri-tools"
+      package:
+        name: cri-tools
+        state: installed
+    - name: "Install cni-plugins"
+      package:
+        name: cni-plugins
+        state: installed
+    - name: "Install runc"
+      package:
+        name: crun 
+        state: installed
+    - name: "Install containerd"
+      package:
+        name: containerd
+        state: installed
+    - name: "Install conntrack-tools"
+      package:
+        name: conntrack-tools
+        state: installed
+    - name: "Install ipvsadm"
+      package:
+        name: ipvsadm
+        state: installed
+    - name: "kubectl"
+      package:
+        name: kubectl
+        state: installed
+
+    - name: "put certificates"
+      include_tasks: certs/worker.yaml
+
+    - name: "Copy conf.d files"
+      copy:
+        src: "{{ item.src }}"
+        dest: "/etc/conf.d"
+      with_items:
+        - {"src":"../resources/conf.d/kubelet"}
+        - {"src":"../resources/conf.d/kube-proxy"}
+
+    - name: "Copy kubelet-config file"
+      copy:
+        src: "../resources/kubelet-config.yaml"
+        dest: "/etc/kubernetes/manifests"
+
+    - name: "Copy kubelet-config file"
+      copy:
+        src: "../resources/resolv.conf"
+        dest: "/etc/kubernetes/"
+
+    - name: "Replace Cluster CIDR"
+      replace:
+        path: "{{ item.path }}"
+        regexp: "{CLUSTER_CIDR}"
+        replace: "{{kconf.cluster_cidr}}"
+      with_items:
+        - {"path":"/etc/conf.d/kubelet"}
+        - {"path":"/etc/conf.d/kube-proxy"}
+
+    - name: "Replace API Endpoint"
+      replace:
+        path: "{{ item.path }}"
+        regexp: "{API_ENDPOINT}"
+        replace: "{{kconf.api_endpoint}}"
+      with_items:
+        - {"path":"/etc/conf.d/kubelet"}
+        - {"path":"/etc/conf.d/kube-proxy"}
+
+    # kubelet kubeconfigs
+    - name: "kubelet kubeconfig"
+      shell: "kubectl config set-cluster {{kconf.cluster_name}} --certificate-authority=/etc/kubernetes/pki/ca.crt --embed-certs=true --server=https://{{kconf.api_endpoint}}:6443 --kubeconfig=/etc/kubernetes/kubelet.kubeconfig"
+    - name: "kubelet kubeconfig"
+      shell: "kubectl config set-credentials system:node:{{ansible_hostname}} --client-certificate=/etc/kubernetes/pki/kubelet.crt --client-key=/etc/kubernetes/pki/kubelet.key --embed-certs=true --kubeconfig=/etc/kubernetes/kubelet.kubeconfig"
+    - name: "kubelet kubeconfig"
+      shell: "kubectl config set-context default --cluster={{kconf.cluster_name}} --user=system:node:{{ansible_hostname}} --kubeconfig=/etc/kubernetes/kubelet.kubeconfig"
+    - name: "kubelet kubeconfig"
+      shell: "kubectl config use-context default --kubeconfig=/etc/kubernetes/kubelet.kubeconfig"
+
+    # kube-proxy kubeconfigs
+    - name: "kube-proxy kubeconfig"
+      shell: "kubectl config set-cluster {{kconf.cluster_name}} --certificate-authority=/etc/kubernetes/pki/ca.crt --embed-certs=true --server=https://{{kconf.api_endpoint}}:6443 --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig"
+    - name: "kube-proxy kubeconfig"
+      shell: "kubectl config set-credentials system:kube-proxy --client-certificate=/etc/kubernetes/pki/kube-proxy.crt --client-key=/etc/kubernetes/pki/kube-proxy.key --embed-certs=true --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig"
+    - name: "kube-proxy kubeconfig"
+      shell: "kubectl config set-context default --cluster={{kconf.cluster_name}} --user=system:kube-proxy --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig"
+    - name: "kube-proxy kubeconfig"
+      shell: "kubectl config use-context default --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig"
+
+    # machine-id
+    - name: "machine-id check"
+      stat:
+        path: "/etc/machine-id"
+      register: has_machine_id
+    - name: "create machine-id"
+      shell: "uuidgen > /etc/machine-id"
+      when: not has_machine_id.stat.exists
+
+    - name: "Copy policy.json"
+      copy:
+        src: "../resources/policy.json"
+        dest: "/etc/containers/"
+
+    - name: "Copy crio.conf"
+      copy:
+        src: "../resources/crio.conf"
+        dest: "/etc/crio/"
+
+    - name: "Copy crionet.conflist"
+      copy:
+        src: "../resources/crionet.conflist"
+        dest: "/etc/cni/net.d/"
+
+    - name: "Copy crionet.conflist"
+      copy:
+        src: "../resources/crionet.conflist"
+        dest: "/etc/cni/net.d/"
+    - name: "Copy registries.conf"
+      copy:
+        src: "../resources/registries.conf"
+        dest: "/etc/containers/"
+    - name: "Copy policies to containers registries"
+      copy:
+        src: "../resources/policy.json"
+        dest: "/etc/containers/"
+
+    # enable services
+    - name: "Enable cri-o service"
+      service:
+        name: crio
+        enabled: yes
+    - name: "Enable kubelet service"
+      service:
+        name: kubelet
+        enabled: yes
+    - name: "Enable kube-proxy service"
+      service:
+        name: kube-proxy
+        enabled: yes
+    - name: "Enable containerd service"
+      service:
+        name: containerd
+        enabled: yes
+

@@ -16,7 +16,7 @@ command_args="
 	--leader-elect=true
 	--master=https://{API_ENDPOINT}:6443
 	--root-ca-file=/etc/kubernetes/pki/ca.crt
-	--service-account-private-key-file=/etc/kubernetes/pki/kube-apiserver.key
+	--service-account-private-key-file=/etc/kubernetes/pki/kube-controller-manager.key
 	--v=2
 	--kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig
 	--horizontal-pod-autoscaler-cpu-initialization-period 30s
