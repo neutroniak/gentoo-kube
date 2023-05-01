@@ -77,6 +77,6 @@ subjects:
     name: system:kube-controller-manager
   - apiGroup: rbac.authorization.k8s.io
     kind: User
-    name: system:node:kube01.mrgz.org
+    name: system:node:kube02a.mrgz.org
 
 
