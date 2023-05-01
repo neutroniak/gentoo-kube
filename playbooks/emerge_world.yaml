@@ -1,0 +1,20 @@
+---
+  - name: "install and upgrade packages"
+    hosts: controlplane,workers
+    become: yes
+    tasks:
+    - name: "include vars"
+      include_vars:
+        file: "../config.yaml"
+        name: "kconf"
+    - name: "update"
+      community.general.portage:
+        package: '@world'
+        update: yes
+        deep: yes
+        newuse: yes
+        changed_use: yes
+    - name: "depclean"
+      community.general.portage:
+        depclean: yes
+
