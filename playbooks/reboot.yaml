@@ -1,0 +1,8 @@
+---
+  - name: "install and upgrade packages"
+    hosts: workers
+    become: yes
+    tasks:
+      - name: "Reboot to configure and start service"
+        ansible.builtin.reboot:
+
