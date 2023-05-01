@@ -31,15 +31,13 @@
       package:
         name: kubectl
         state: installed
-
-    - name: "check pki dir"
-      stat:
-        path: "/etc/kubernetes/pki/kube-apiserver.key"
-      register: has_pki
+    - name: "chrony"
+      package:
+        name: chrony
+        state: installed
 
     - name: "check pki dir"
       include_tasks: certs/controlplane.yaml
-      when: not has_pki.stat.exists
 
     - name: "Copy conf.d files"
       copy:
@@ -244,5 +242,11 @@
       service:
         name: kube-scheduler
         enabled: yes
+    - name: "Enable chronyd service"
+      service:
+        name: chronyd
+        enabled: yes
 
+    - name: "Reboot to configure and start service"
+      ansible.builtin.reboot:
 
