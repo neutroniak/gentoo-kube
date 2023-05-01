@@ -6,13 +6,14 @@
         state: directory
         owner: root
         mode: u=rwx,g=rx,o=rx
-
-    - name: "Kubernetes PKI dir"
-      file:
-        path: "/etc/etcd/pki"
-        state: directory
-        owner: etcd
-        mode: u=rwx,g=rx,o=rx
+    - name: "Copy CA cert"
+      copy:
+        src: "../../data/ca.crt"
+        dest: "/etc/kubernetes/pki"
+    - name: "Copy CA key"
+      copy:
+        src: "../../data/ca.key"
+        dest: "/etc/kubernetes/pki"
 
     # put ssl config files
     - name: "Copy openssl config files"
@@ -21,7 +22,6 @@
         dest: "/etc/kubernetes/pki"
       with_items:
         - {"src":"../resources/openssl.conf"}
-        - {"src":"../resources/openssl_ca.conf"}
 
     - name: "Replace Hostname"
       replace:
@@ -30,7 +30,6 @@
         replace: "{{ansible_hostname}}"
       with_items:
         - {"path":"/etc/kubernetes/pki/openssl.conf"}
-        - {"path":"/etc/kubernetes/pki/openssl_ca.conf"}
 
     - name: "Replace IP"
       replace:
@@ -39,7 +38,6 @@
         replace: "{{ansible_default_ipv4.address}}"
       with_items:
         - {"path":"/etc/kubernetes/pki/openssl.conf"}
-        - {"path":"/etc/kubernetes/pki/openssl_ca.conf"}
 
     - name: "Replace OpenSSL C"
       replace:
@@ -48,7 +46,6 @@
         replace: "{{kconf.openssl_c}}"
       with_items:
         - {"path":"/etc/kubernetes/pki/openssl.conf"}
-        - {"path":"/etc/kubernetes/pki/openssl_ca.conf"}
 
     - name: "Replace OpenSSL ST"
       replace:
@@ -57,7 +54,6 @@
         replace: "{{kconf.openssl_st}}"
       with_items:
         - {"path":"/etc/kubernetes/pki/openssl.conf"}
-        - {"path":"/etc/kubernetes/pki/openssl_ca.conf"}
 
     - name: "Replace OpenSSL L"
       replace:
@@ -66,7 +62,6 @@
         replace: "{{kconf.openssl_l}}"
       with_items:
         - {"path":"/etc/kubernetes/pki/openssl.conf"}
-        - {"path":"/etc/kubernetes/pki/openssl_ca.conf"}
 
     - name: "Replace OpenSSL O"
       replace:
@@ -75,7 +70,6 @@
         replace: "{{kconf.openssl_o}}"
       with_items:
         - {"path":"/etc/kubernetes/pki/openssl.conf"}
-        - {"path":"/etc/kubernetes/pki/openssl_ca.conf"}
 
     - name: "Replace OpenSSL OU"
       replace:
@@ -84,7 +78,6 @@
         replace: "{{kconf.openssl_ou}}"
       with_items:
         - {"path":"/etc/kubernetes/pki/openssl.conf"}
-        - {"path":"/etc/kubernetes/pki/openssl_ca.conf"}
 
     - name: "Replace Cluster Name"
       replace:
@@ -93,35 +86,5 @@
         replace: "{{kconf.api_endpoint}}"
       with_items:
         - {"path":"/etc/kubernetes/pki/openssl.conf"}
-        - {"path":"/etc/kubernetes/pki/openssl_ca.conf"}
 
-    # create ca pair
-    - name: "check ca.key"
-      stat:
-        path: "/etc/kubernetes/pki/ca.key"
-      register: has_cakey
-    - name: "Openssl CA key"
-      shell: "openssl genrsa -out ca.key 2048"
-      args:
-        chdir: "/etc/kubernetes/pki"
-      when: not has_cakey.stat.exists
-    - name: "check ca.crt"
-      stat:
-        path: "/etc/kubernetes/pki/ca.crt"
-      register: has_cacrt
-    - name: "Openssl CA crt"
-      shell: 'openssl req -x509 -new -nodes -key ca.key -days 10000 -out ca.crt -extensions v3_ext -config openssl_ca.conf'
-      args:
-        chdir: "/etc/kubernetes/pki"
-      when: not has_cacrt.stat.exists
-    - name: "Copy ca.key to local"
-      fetch:
-        src: "/etc/kubernetes/pki/ca.key"
-        dest: "../data/ca.key"
-        flat: true
-    - name: "Copy ca.crt to local"
-      fetch:
-        src: "/etc/kubernetes/pki/ca.crt"
-        dest: "../data/ca.crt"
-        flat: true
 
