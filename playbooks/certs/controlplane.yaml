@@ -4,6 +4,13 @@
       include_tasks: certs/common.yaml
 
     # etcd cert
+    - name: "Kubernetes PKI dir"
+      file:
+        path: "/etc/etcd/pki"
+        state: directory
+        owner: etcd
+        mode: u=rwx,g=rx,o=rx
+
     - name: "etcd key"
       shell: 'openssl genrsa -out etcd.key 2048'
       args:
