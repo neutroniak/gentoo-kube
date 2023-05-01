@@ -55,6 +55,18 @@
       package:
         name: kubectl
         state: installed
+    - name: "ipset"
+      package:
+        name: ipset
+        state: installed
+    - name: "chrony"
+      package:
+        name: chrony
+        state: installed
+    - name: "Enable chronyd service"
+      service:
+        name: chronyd
+        enabled: yes
 
     - name: "put certificates"
       include_tasks: certs/worker.yaml
@@ -151,6 +163,11 @@
       copy:
         src: "../resources/policy.json"
         dest: "/etc/containers/"
+    - name: "replace registries"
+      replace:
+        path: "/etc/containers/registries.conf"
+        regexp: "{REGISTRIES}"
+        replace: "{{kconf.registries}}"
 
     # enable services
     - name: "Enable cri-o service"
