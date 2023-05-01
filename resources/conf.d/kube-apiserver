@@ -7,11 +7,10 @@ INTERNAL_IP="{INSTANCE_IP}"
 
 command_args="
   --allow-privileged=true 
-  --apiserver-count=3 
   --audit-log-maxage=30 
   --audit-log-maxbackup=3 
   --audit-log-maxsize=100
-  --authorization-mode=Node,RBAC
+  --authorization-mode=AlwaysAllow,Node,RBAC
   --bind-address=0.0.0.0 
   --client-ca-file=/etc/kubernetes/pki/ca.crt
   --enable-admission-plugins=LimitRanger,NamespaceExists,NamespaceLifecycle,ResourceQuota,ServiceAccount,DefaultStorageClass,MutatingAdmissionWebhook
