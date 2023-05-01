@@ -3,15 +3,14 @@
   - name: "check pki dir"
     include_tasks: certs/common.yaml
 
-  - name: "Copy ca.crt"
+  - name: "Copy CA cert"
     copy:
-      src: '../data/ca.crt'
-      dest: '/etc/kubernetes/pki'
-
-  - name: "Copy ca.key"
+      src: "../../data/ca.crt"
+      dest: "/etc/kubernetes/pki"
+  - name: "Copy CA key"
     copy:
-      src: '../data/ca.key'
-      dest: '/etc/kubernetes/pki'
+      src: "../../data/ca.key"
+      dest: "/etc/kubernetes/pki"
 
   # kubelet cert
   - name: "kubelet key"
@@ -23,7 +22,7 @@
     args:
       chdir: "/etc/kubernetes/pki"
   - name: "kubelet crt"
-    shell: "openssl x509 -req -in kubelet.csr -CA ca.crt -CAkey ca.key -set_serial 101 -days 365 -outform PEM -out kubelet.crt"
+    shell: "openssl x509 -req -in kubelet.csr -CA ca.crt -CAkey ca.key -set_serial 101 -days 365 -outform PEM -out kubelet.crt -extensions v3_ext -extfile openssl.conf"
     args:
       chdir: "/etc/kubernetes/pki"
 
@@ -40,5 +39,4 @@
     shell: "openssl x509 -req -in kube-proxy.csr -CA ca.crt -CAkey ca.key -set_serial 101 -days 365 -outform PEM -out kube-proxy.crt"
     args:
       chdir: "/etc/kubernetes/pki"
-
 
