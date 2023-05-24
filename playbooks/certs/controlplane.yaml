@@ -87,7 +87,7 @@
       args:
         chdir: "/etc/kubernetes/pki"
     - name: "admin csr"
-      shell: "openssl req -new -key admin.key -out admin.csr -in openssl.conf -subj \"/O=system:masters/CN=system-admin\""
+      shell: "openssl req -new -key admin.key -out admin.csr -in openssl.conf -subj \"/O=system:masters/CN=admin\""
       args:
         chdir: "/etc/kubernetes/pki"
     - name: "admin crt"
