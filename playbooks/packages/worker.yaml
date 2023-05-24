@@ -1,0 +1,8 @@
+---
+  - name: "install and upgrade worker packages"
+    hosts: workers
+    become: yes
+    tasks:
+    - name: "include workers packages"
+      include_tasks: _worker.yaml
+

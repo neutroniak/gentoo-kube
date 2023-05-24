@@ -1,0 +1,38 @@
+---
+- name: "include vars"
+  include_vars:
+    file: "../../config.yaml"
+    name: "kconf"
+- name: "kube api server"
+  package:
+    name: kube-apiserver
+    state: installed
+- name: "kube controller manager"
+  package:
+    name: kube-controller-manager
+    state: installed
+- name: "kube-scheduler"
+  package:
+    name: kube-scheduler
+    state: installed
+- name: "kube-scheduler"
+  package:
+    name: kube-scheduler
+    state: installed
+- name: "etcd"
+  package:
+    name: etcd
+    state: installed
+- name: "kubectl"
+  package:
+    name: kubectl
+    state: installed
+- name: "chrony"
+  package:
+    name: chrony
+    state: installed
+- name: "Enable chronyd service"
+  service:
+    name: chronyd
+    enabled: yes
+
