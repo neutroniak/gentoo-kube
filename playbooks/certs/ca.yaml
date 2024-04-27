@@ -3,15 +3,22 @@
       hosts: local
       connection: local
       tasks:
-      - name: "Copy openssl ca base config"
-        copy:
-          src: '../../resources/openssl_ca.conf'
-          dest: '../../data'
-        delegate_to: localhost
       - name: "include vars"
         include_vars:
           file: "../../config.yaml"
           name: "kconf"
+
+      - name: "Ensure data dir is created"
+        file:
+          path: "{{kconf.data_dir}}"
+          state: directory
+          mode: 0700
+
+      - name: "Copy openssl ca base config"
+        copy:
+          src: '../../resources/openssl_ca.conf'
+          dest: '{{kconf.data_dir}}'
+        delegate_to: localhost
 
       - name: "Replace OpenSSL C"
         replace:
@@ -19,7 +26,7 @@
           regexp: "{OPENSSL_C}"
           replace: "{{kconf.openssl_c}}"
         with_items:
-          - {"path":"../../data/openssl_ca.conf"}
+          - {"path":"{{kconf.data_dir}}/openssl_ca.conf"}
         delegate_to: localhost
 
       - name: "Replace OpenSSL ST"
@@ -28,7 +35,7 @@
           regexp: "{OPENSSL_ST}"
           replace: "{{kconf.openssl_st}}"
         with_items:
-          - {"path":"../../data/openssl_ca.conf"}
+          - {"path":"{{kconf.data_dir}}/openssl_ca.conf"}
         delegate_to: localhost
 
       - name: "Replace OpenSSL ST"
@@ -37,7 +44,7 @@
           regexp: "{OPENSSL_ST}"
           replace: "{{kconf.openssl_st}}"
         with_items:
-          - {"path":"../../data/openssl_ca.conf"}
+          - {"path":"{{kconf.data_dir}}/openssl_ca.conf"}
         delegate_to: localhost
 
       - name: "Replace OpenSSL L"
@@ -46,7 +53,7 @@
           regexp: "{OPENSSL_L}"
           replace: "{{kconf.openssl_l}}"
         with_items:
-          - {"path":"../../data/openssl_ca.conf"}
+          - {"path":"{{kconf.data_dir}}/openssl_ca.conf"}
         delegate_to: localhost
 
       - name: "Replace OpenSSL O"
@@ -55,7 +62,7 @@
           regexp: "{OPENSSL_O}"
           replace: "{{kconf.openssl_o}}"
         with_items:
-          - {"path":"../../data/openssl_ca.conf"}
+          - {"path":"{{kconf.data_dir}}/openssl_ca.conf"}
         delegate_to: localhost
 
       - name: "Replace OpenSSL OU"
@@ -64,15 +71,15 @@
           regexp: "{OPENSSL_OU}"
           replace: "{{kconf.openssl_ou}}"
         with_items:
-          - {"path":"../../data/openssl_ca.conf"}
+          - {"path":"{{kconf.data_dir}}/openssl_ca.conf"}
         delegate_to: localhost
 
       # create ca pair
       - name: "Openssl CA key"
-        shell: "openssl genrsa -out ../../data/ca.key 2048"
+        shell: "openssl genrsa -out {{kconf.data_dir}}/ca.key 2048"
         delegate_to: localhost
 
       - name: "Openssl CA crt"
-        shell: 'openssl req -x509 -new -nodes -key ../../data/ca.key -days 10000 -out ../../data/ca.crt -extensions v3_ext -config ../../data/openssl_ca.conf'
+        shell: 'openssl req -x509 -new -nodes -key {{kconf.data_dir}}/ca.key -days 10000 -out {{kconf.data_dir}}/ca.crt -extensions v3_ext -config {{kconf.data_dir}}/openssl_ca.conf'
         delegate_to: localhost
 

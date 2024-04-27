@@ -8,11 +8,11 @@
         mode: u=rwx,g=rx,o=rx
     - name: "Copy CA cert"
       copy:
-        src: "../../data/ca.crt"
+        src: "{{kconf.data_dir}}/ca.crt"
         dest: "/etc/kubernetes/pki"
     - name: "Copy CA key"
       copy:
-        src: "../../data/ca.key"
+        src: "{{kconf.data_dir}}/ca.key"
         dest: "/etc/kubernetes/pki"
 
     # put ssl config files
@@ -21,7 +21,7 @@
         src: "{{ item.src }}"
         dest: "/etc/kubernetes/pki"
       with_items:
-        - {"src":"../resources/openssl.conf"}
+        - {"src":"../../resources/openssl.conf"}
 
     - name: "Replace Hostname"
       replace:

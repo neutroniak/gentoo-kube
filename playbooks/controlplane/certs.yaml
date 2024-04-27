@@ -1,0 +1,98 @@
+---
+    # cert common tasks for controlplane and workers
+    - name: "check pki dir"
+      include_tasks: ../certs/common.yaml
+
+    # etcd cert
+    - name: "Kubernetes PKI dir"
+      file:
+        path: "/etc/etcd/pki"
+        state: directory
+        owner: etcd
+        mode: u=rwx,g=rx,o=rx
+
+    - name: "etcd key"
+      shell: 'openssl genrsa -out etcd.key 2048'
+      args:
+        chdir: "/etc/kubernetes/pki"
+    - name: "etcd csr"
+      shell: "openssl req -new -key etcd.key -out etcd.csr -in openssl.conf -subj \"/CN={{ansible_hostname}}\""
+      args:
+        chdir: "/etc/kubernetes/pki"
+    - name: "etcd crt"
+      shell: "openssl x509 -req -in etcd.csr -CA ca.crt -CAkey ca.key -set_serial 101 -days 3650 -outform PEM -out etcd.crt -extensions v3_ext -extfile openssl.conf"
+      args:
+        chdir: "/etc/kubernetes/pki"
+    - name: "Copy ca.crt to etcd"
+      copy:
+        src: "/etc/kubernetes/pki/ca.crt"
+        dest: "/etc/etcd/pki/ca.crt"
+        remote_src: yes
+    - name: "Move etcd key to etcd pki"
+      copy:
+        src: "/etc/kubernetes/pki/etcd.key"
+        dest: "/etc/etcd/pki/etcd.key"
+        remote_src: yes
+    - name: "Move etcd crt to etcd pki"
+      copy:
+        src: "/etc/kubernetes/pki/etcd.crt"
+        dest: "/etc/etcd/pki/etcd.crt"
+        remote_src: yes
+
+    # kube-apiserver cert
+    - name: "kube-apiserver key"
+      shell: 'openssl genrsa -out kube-apiserver.key 2048'
+      args:
+        chdir: "/etc/kubernetes/pki"
+    - name: "kube-apiserver csr"
+      shell: "openssl req -new -key kube-apiserver.key -out kube-apiserver.csr -in openssl.conf -subj \"/CN={{ansible_hostname}}\""
+      args:
+        chdir: "/etc/kubernetes/pki"
+    - name: "kube-apiserver crt"
+      shell: "openssl x509 -req -in kube-apiserver.csr -CA ca.crt -CAkey ca.key -set_serial 101 -days 3650 -outform PEM -out kube-apiserver.crt -extensions v3_ext -extfile openssl.conf"
+      args:
+        chdir: "/etc/kubernetes/pki"
+
+    # kube-controller-manager cert
+    - name: "kube-controller-manager key"
+      shell: 'openssl genrsa -out kube-controller-manager.key 2048'
+      args:
+        chdir: "/etc/kubernetes/pki"
+    - name: "kube-controller-manager csr"
+      shell: "openssl req -new -key kube-controller-manager.key -out kube-controller-manager.csr -in openssl.conf -subj \"/CN=system:kube-controller-manager\""
+      args:
+        chdir: "/etc/kubernetes/pki"
+    - name: "kube-controller-manager crt"
+      shell: "openssl x509 -req -in kube-controller-manager.csr -CA ca.crt -CAkey ca.key -set_serial 101 -days 3650 -outform PEM -out kube-controller-manager.crt"
+      args:
+        chdir: "/etc/kubernetes/pki"
+
+    # kube-scheduler cert
+    - name: "kube-scheduler key"
+      shell: 'openssl genrsa -out kube-scheduler.key 2048'
+      args:
+        chdir: "/etc/kubernetes/pki"
+    - name: "kube-scheduler csr"
+      shell: "openssl req -new -key kube-scheduler.key -out kube-scheduler.csr -in openssl.conf -subj \"/CN=system:kube-scheduler\""
+      args:
+        chdir: "/etc/kubernetes/pki"
+    - name: "kube-scheduler crt"
+      shell: "openssl x509 -req -in kube-scheduler.csr -CA ca.crt -CAkey ca.key -set_serial 101 -days 3650 -outform PEM -out kube-scheduler.crt"
+      args:
+        chdir: "/etc/kubernetes/pki"
+
+    # admin cert
+    - name: "admin key"
+      shell: 'openssl genrsa -out admin.key 2048'
+      args:
+        chdir: "/etc/kubernetes/pki"
+    - name: "admin csr"
+      shell: "openssl req -new -key admin.key -out admin.csr -in openssl.conf -subj \"/O=system:masters/CN=admin\""
+      args:
+        chdir: "/etc/kubernetes/pki"
+    - name: "admin crt"
+      shell: "openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -set_serial 101 -days 3650 -outform PEM -out admin.crt"
+      args:
+        chdir: "/etc/kubernetes/pki"
+
+
