@@ -1,0 +1,8 @@
+---
+  - name: "install and upgrade controlplane packages"
+    hosts: controlplane
+    become: yes
+    tasks:
+    - name: "include controlplane packages"
+      include_tasks: _packages.yaml
+
