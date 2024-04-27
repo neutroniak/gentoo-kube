@@ -1,6 +1,6 @@
 *.swp
 *.swo
-/data
+/.data
 /scripts
 /hosts
 /config.yaml
