@@ -8,4 +8,5 @@ authentication:
     enabled: true
   x509:
     clientCAFile: "/etc/kubernetes/pki/ca.crt"
+containerRuntimeEndpoint: "unix:///var/run/crio/crio.sock"
 

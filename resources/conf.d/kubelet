@@ -2,12 +2,9 @@
 #group=root
 
 command_args="
-        --cluster-dns=172.16.0.53
+        --cluster-dns={DNS_ADDRESS}
         --config=/etc/kubernetes/manifests/kubelet-config.yaml
         --cluster-domain=cluster.local
-        --container-runtime=remote
-        --container-runtime-endpoint=/var/run/crio/crio.sock
-        --serialize-image-pulls=false
         --tls-cert-file=/etc/kubernetes/pki/kubelet.crt
         --tls-private-key-file=/etc/kubernetes/pki/kubelet.key
         --v=1
