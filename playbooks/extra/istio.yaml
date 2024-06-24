@@ -1,0 +1,31 @@
+---
+  - name: "install and upgrade packages"
+    hosts: local
+    connection: local
+    tasks:
+      - name: "include vars"
+        include_vars:
+          file: "../../config.yaml"
+          name: "kconf"
+      - name: "Install istio-base"
+        kubernetes.core.helm:
+          name: istio-base 
+          chart_ref: istio/base
+          values_files:
+            - '{{kconf.istio.base.values_file}}'
+          release_namespace: '{{kconf.istio.namespace}}'
+      - name: "Install istiod"
+        kubernetes.core.helm:
+          name: istiod
+          chart_ref: istio/istiod
+          values_files:
+            - '{{kconf.istio.istiod.values_file}}'
+          release_namespace: '{{kconf.istio.namespace}}'
+      - name: "Install gateway"
+        kubernetes.core.helm:
+          name: istio-gateway
+          chart_ref: istio/gateway
+          values_files:
+            - '{{kconf.istio.gateway.values_file}}'
+          release_namespace: '{{kconf.istio.namespace}}'
+

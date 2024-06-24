@@ -1,0 +1,2 @@
+rc_ulimit="-n 1048576 -u 1549513 -i 1549513 -s unlimited"
+
