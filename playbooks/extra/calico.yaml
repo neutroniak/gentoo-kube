@@ -1,0 +1,25 @@
+---
+  - name: "install and upgrade packages"
+    hosts: local
+    connection: local
+    tasks:
+      - name: "include vars"
+        include_vars:
+          file: "../../config.yaml"
+          name: "kconf"
+      - name: 'Add tigera operator repo'
+        kubernetes.core.helm_repository:
+          name: projectcalico
+          repo_url: "https://docs.tigera.io/calico/charts"
+      - name: "Reboot to configure and start service"
+        kubernetes.core.helm:
+          name: calico 
+          chart_ref: projectcalico/tigera-operator
+          values_files:
+            - '{{kconf.calico.values_file}}'
+          release_namespace: tigera-operator
+          create_namespace: true
+          set_values:
+            - value: 'imagePullSecrets.tigera-pull-secret={{kconf.dockerio.credentials}}'
+              value_type: 'file'
+

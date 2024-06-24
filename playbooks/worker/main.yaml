@@ -5,31 +5,57 @@
     tasks:
     - name: "include vars"
       include_vars:
-        file: "../config.yaml"
+        file: "../../config.yaml"
         name: "kconf"
     - name: "include worker packages"
-      include_tasks: packages/_worker.yaml
+      include_tasks: _packages.yaml
 
     - name: "put certificates"
-      include_tasks: certs/worker.yaml
+      include_tasks: certs.yaml
 
     - name: "Copy conf.d files"
       copy:
         src: "{{ item.src }}"
         dest: "/etc/conf.d"
       with_items:
-        - {"src":"../resources/conf.d/kubelet"}
-        - {"src":"../resources/conf.d/kube-proxy"}
+        - {"src":"../../resources/conf.d/kubelet"}
+        - {"src":"../../resources/conf.d/kube-proxy"}
+        - {"src":"../../resources/conf.d/crio"}
 
     - name: "Copy kubelet-config file"
       copy:
-        src: "../resources/kubelet-config.yaml"
+        src: "../../resources/kubelet-config.yaml"
         dest: "/etc/kubernetes/manifests"
 
     - name: "Copy kubelet-config file"
       copy:
-        src: "../resources/resolv.conf"
+        src: "../../resources/resolv.conf"
         dest: "/etc/kubernetes/"
+
+    - name: "Create manifests dire"
+      file:
+        path: "/etc/modules-load.d/"
+        state: directory
+
+    - name: "Copy moduiles file"
+      copy:
+        src: "../../resources/modules.conf"
+        dest: "/etc/modules-load.d/networking.conf"
+
+    - name: "Copy sysctl forwarding"
+      copy:
+        src: "../../resources/sysctl.conf"
+        dest: "/etc/sysctl.d/forward.conf"
+
+    #TODO - possibly kubelet file does not need it anymore
+    - name: "Replace DNS Address"
+      replace:
+        path: "{{ item.path }}"
+        regexp: "{DNS_ADDRESS}"
+        replace: "{{kconf.dns_address}}"
+      with_items:
+        - {"path":"/etc/conf.d/kubelet"}
+        - {"path":"/etc/kubernetes/resolv.conf"}
 
     - name: "Replace Cluster CIDR"
       replace:
@@ -80,37 +106,38 @@
 
     - name: "Copy policy.json"
       copy:
-        src: "../resources/policy.json"
+        src: "../../resources/policy.json"
         dest: "/etc/containers/"
 
     - name: "Copy crio.conf"
       copy:
-        src: "../resources/crio.conf"
+        src: "../../resources/crio.conf"
         dest: "/etc/crio/"
 
     - name: "Copy crionet.conflist"
       copy:
-        src: "../resources/crionet.conflist"
-        dest: "/etc/cni/net.d/"
-
-    - name: "Copy crionet.conflist"
-      copy:
-        src: "../resources/crionet.conflist"
+        src: "../../resources/crionet.conflist"
         dest: "/etc/cni/net.d/"
     - name: "Copy registries.conf"
       copy:
-        src: "../resources/registries.conf"
+        src: "../../resources/registries.conf"
         dest: "/etc/containers/"
     - name: "Copy policies to containers registries"
       copy:
-        src: "../resources/policy.json"
+        src: "../../resources/policy.json"
         dest: "/etc/containers/"
     - name: "replace registries"
       replace:
         path: "/etc/containers/registries.conf"
         regexp: "{REGISTRIES}"
         replace: "{{kconf.registries}}"
-
+    # original kubelet init dependes on net, but crio is a better workaround
+    - name: "replace dep with crio for kubelet"
+      replace:
+        path: "/etc/init.d/kubelet"
+        regexp: "after net"
+        replace: "after crio"
+  
     # enable services
     - name: "Enable cri-o service"
       service:
@@ -127,5 +154,9 @@
     - name: "Enable containerd service"
       service:
         name: containerd
+        enabled: yes
+    - name: "Enable cni-dhcp service"
+      service:
+        name: cni-dhcp
         enabled: yes
 

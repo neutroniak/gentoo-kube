@@ -1,0 +1,21 @@
+---
+  - name: "install and upgrade packages"
+    hosts: local
+    connection: local
+    tasks:
+      - name: "include vars"
+        include_vars:
+          file: "../../config.yaml"
+          name: "kconf"
+      - name: Add stable chart repo
+        kubernetes.core.helm_repository:
+          name: ingress-nginx
+          repo_url: "https://kubernetes.github.io/ingress-nginx"
+      - name: "Reboot to configure and start service"
+        kubernetes.core.helm:
+          name: ingress-nginx
+          chart_ref: ingress-nginx/ingress-nginx
+          values_files:
+            - '{{kconf.ingress_nginx.values_file}}'
+          release_namespace: '{{kconf.ingress_nginx.namespace}}'
+
